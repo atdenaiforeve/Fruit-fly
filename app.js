@@ -20,14 +20,14 @@
     running:false, elapsed:0, lastFrame:0, wallClosed:true,
     flies:[makeFly(.25,.5,"male"),makeFly(.75,.5,"female")],
     foods:[
-      {id:"fruit-m",type:"fruit",x:.15,y:.30,amount:100,label:"FRUIT",side:"male"},
-      {id:"yeast-m",type:"yeast",x:.34,y:.72,amount:100,label:"YEAST",side:"male"},
-      {id:"sugar-m",type:"sugar",x:.15,y:.78,amount:100,label:"SUGAR",side:"male"},
-      {id:"fruit-f",type:"fruit",x:.85,y:.30,amount:100,label:"FRUIT",side:"female"},
-      {id:"yeast-f",type:"yeast",x:.66,y:.72,amount:100,label:"YEAST",side:"female"},
-      {id:"sugar-f",type:"sugar",x:.85,y:.78,amount:100,label:"SUGAR",side:"female"}
+      {id:"fruit-m",type:"fruit",x:.19,y:.46,amount:100,label:"FRUIT",side:"male"},
+      {id:"yeast-m",type:"yeast",x:.29,y:.52,amount:100,label:"YEAST",side:"male"},
+      {id:"sugar-m",type:"sugar",x:.35,y:.72,amount:100,label:"SAP",side:"male"},
+      {id:"fruit-f",type:"fruit",x:.81,y:.46,amount:100,label:"FRUIT",side:"female"},
+      {id:"yeast-f",type:"yeast",x:.71,y:.52,amount:100,label:"YEAST",side:"female"},
+      {id:"sugar-f",type:"sugar",x:.65,y:.72,amount:100,label:"SAP",side:"female"}
     ],
-    waters:[{x:.35,y:.28,amount:100,side:"male"},{x:.65,y:.28,amount:100,side:"female"}],
+    waters:[{x:.25,y:.61,amount:100,side:"male"},{x:.75,y:.61,amount:100,side:"female"}],
     events:[]
   };
   // Public sensory interface for a future neural model. IDs and labels stay stable.
@@ -48,25 +48,35 @@
     ground.style.height=h+"px";const ratio=Math.min(window.devicePixelRatio||1,2);
     ground.width=Math.round(w*ratio);ground.height=Math.round(h*ratio);
     groundCtx.setTransform(ratio,0,0,ratio,0,0);groundCtx.clearRect(0,0,w,h);
-    const tile=Math.max(92,Math.min(150,w/8)),angle=-.105,cx=w/2,cy=h/2;
-    const cols=Math.ceil((w+h)/tile)+4,rows=Math.ceil((w+h)/tile)+4,points=[];
-    for(let r=-2;r<rows;r++){points[r]=[];for(let c=-2;c<cols;c++){
-      const gx=(c-cols/2)*tile,gy=(r-rows/2)*tile;
-      const seed=Math.sin((c+17)*127.1+(r+29)*311.7)*43758.5453;
-      const seed2=Math.sin((c+43)*269.5+(r+11)*183.3)*24634.6345;
-      points[r][c]={x:cx+gx*Math.cos(angle)-gy*Math.sin(angle)+(seed-Math.floor(seed)-.5)*10,
-      y:cy+gx*Math.sin(angle)+gy*Math.cos(angle)+(seed2-Math.floor(seed2)-.5)*10+gy*gy*.000025};
-    }}
-    for(let r=0;r<rows-1;r++)for(let c=0;c<cols-1;c++){
-      const a=points[r][c],b=points[r][c+1],d=points[r+1][c],e=points[r+1][c+1];
-      const base=(r+c)%2===0?48:25,variation=Math.round((Math.sin(c*8.2+r*3.7)+1)*5);
-      groundCtx.beginPath();groundCtx.moveTo(a.x,a.y);groundCtx.lineTo(b.x,b.y);groundCtx.lineTo(e.x,e.y);groundCtx.lineTo(d.x,d.y);groundCtx.closePath();
-      groundCtx.fillStyle=`rgb(${base+variation},${base+variation},${base+variation+2})`;groundCtx.fill();
-      groundCtx.strokeStyle="rgba(0,0,0,.28)";groundCtx.lineWidth=2;groundCtx.stroke();
+    // Natural soil and leaf-litter base: no checkerboard or geometric tile pattern.
+    const base=groundCtx.createLinearGradient(0,0,w,h);
+    base.addColorStop(0,"#514637");base.addColorStop(.48,"#403b2e");base.addColorStop(1,"#302f27");
+    groundCtx.fillStyle=base;groundCtx.fillRect(0,0,w,h);
+    const glow=groundCtx.createRadialGradient(w*.48,h*.38,Math.min(w,h)*.04,w*.48,h*.38,Math.max(w,h)*.72);
+    glow.addColorStop(0,"rgba(126,119,76,.22)");glow.addColorStop(.55,"rgba(73,91,54,.10)");glow.addColorStop(1,"rgba(0,0,0,.25)");
+    groundCtx.fillStyle=glow;groundCtx.fillRect(0,0,w,h);
+    // Repeatable fine soil grains, tiny leaf fragments and organic specks.
+    for(let i=0;i<Math.floor(w*h/520);i++){
+      const seed=Math.sin(i*127.1+19.7)*43758.5453;
+      const seed2=Math.sin(i*269.5+83.1)*24634.6345;
+      const x=(seed-Math.floor(seed))*w,y=(seed2-Math.floor(seed2))*h;
+      const size=.5+((Math.sin(i*9.17)+1)*1.25);
+      const tone=i%5;
+      groundCtx.fillStyle=tone===0?"rgba(173,143,94,.20)":tone===1?"rgba(20,25,18,.24)":tone===2?"rgba(190,177,135,.12)":"rgba(11,15,12,.16)";
+      groundCtx.beginPath();groundCtx.ellipse(x,y,size*1.8,size*.75,(i%7)*.35,0,Math.PI*2);groundCtx.fill();
     }
-    const shade=groundCtx.createRadialGradient(cx,cy,Math.min(w,h)*.12,cx,cy,Math.max(w,h)*.78);
-    shade.addColorStop(0,"rgba(0,0,0,0)");shade.addColorStop(1,"rgba(0,0,0,.32)");
-    groundCtx.fillStyle=shade;groundCtx.fillRect(0,0,w,h);
+    // Scattered leaf litter and thin root fibres, placed consistently on every redraw.
+    for(let i=0;i<Math.max(18,Math.floor(w/20));i++){
+      const seed=Math.sin(i*71.3+5)*17341.7,seed2=Math.sin(i*37.9+91)*29173.1;
+      const x=(seed-Math.floor(seed))*w,y=(seed2-Math.floor(seed2))*h;
+      groundCtx.save();groundCtx.translate(x,y);groundCtx.rotate((i*1.73)%Math.PI);
+      groundCtx.fillStyle=i%3===0?"rgba(117,112,62,.42)":i%3===1?"rgba(116,79,48,.38)":"rgba(82,98,55,.35)";
+      groundCtx.beginPath();groundCtx.ellipse(0,0,5+(i%4)*2,1.5+(i%2),0,0,Math.PI*2);groundCtx.fill();
+      groundCtx.restore();
+    }
+    const edge=groundCtx.createLinearGradient(0,0,0,h);
+    edge.addColorStop(0,"rgba(0,0,0,.16)");edge.addColorStop(.2,"rgba(0,0,0,0)");edge.addColorStop(.8,"rgba(0,0,0,0)");edge.addColorStop(1,"rgba(0,0,0,.22)");
+    groundCtx.fillStyle=edge;groundCtx.fillRect(0,0,w,h);
   }
   function resize(){
     drawGround();const rect=canvas.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);
@@ -184,13 +194,13 @@
       const minX=state.wallClosed?(fly.sex==="male"?.06:.54):.06;
       const maxX=state.wallClosed?(fly.sex==="male"?.46:.94):.94;
       fly.exploreTarget={x:minX+Math.random()*(maxX-minX),y:.16+Math.random()*.68};
-      fly.exploreTimer=8+Math.random()*12;
+      fly.exploreTimer=6+Math.random()*9;
     }
     fly.exploreTimer-=dt;
     if(!target)target=fly.exploreTarget;
     const dx=target.x-fly.x,dy=target.y-fly.y,distance=Math.hypot(dx,dy);
     if(distance>.025){
-      fly.angle=Math.atan2(dy,dx);const step=Math.min(distance,dt*.028);
+      fly.angle=Math.atan2(dy,dx);const step=Math.min(distance,dt*.045);
       fly.x+=dx/distance*step;fly.y+=dy/distance*step;
     }else if(state.waters.includes(target)){
       fly.hydration=Math.min(100,fly.hydration+dt*6);target.amount=Math.max(0,target.amount-dt*.2);
