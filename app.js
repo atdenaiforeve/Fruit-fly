@@ -5,6 +5,17 @@
   const ctx = canvas.getContext("2d");
   const $ = (id) => document.getElementById(id);
   const makeFly = (x, y, sex) => ({x,y,angle:sex==="male"?0.2:Math.PI+0.2,sex,energy:100,hunger:0,hydration:100,detected:false});
+  const terrain = [
+    {id:"terrain-open-ground",type:"terrain",label:"Open ground",x:.50,y:.50,radius:.20,description:"Clear, open walking area."},
+    {id:"terrain-moss-patch",type:"terrain",label:"Moss patch",x:.29,y:.48,radius:.105,description:"Soft, textured moss-covered ground."},
+    {id:"terrain-bark-ridge",type:"terrain",label:"Bark ridge",x:.72,y:.47,radius:.105,description:"Raised rough bark surface."}
+  ];
+  const landmarks = [
+    {id:"landmark-pebble-field",type:"obstacle",label:"Pebble field",x:.48,y:.25,radius:.055,description:"A cluster of small solid stones."},
+    {id:"landmark-curled-leaf",type:"shelter",label:"Curled leaf shelter",x:.22,y:.63,radius:.075,description:"A curved leaf forming a sheltered space."},
+    {id:"landmark-twig-arch",type:"landmark",label:"Twig arch",x:.78,y:.65,radius:.065,description:"A raised twig crossing the ground."},
+    {id:"landmark-bark-chip",type:"obstacle",label:"Bark chip",x:.52,y:.78,radius:.045,description:"A small piece of loose bark."}
+  ];
   const state = {
     running:false, elapsed:0, lastFrame:0, wallClosed:true,
     flies:[makeFly(.25,.5,"male"),makeFly(.75,.5,"female")],
@@ -18,6 +29,18 @@
     ],
     waters:[{x:.35,y:.28,amount:100,side:"male"},{x:.65,y:.28,amount:100,side:"female"}],
     events:[]
+  };
+  // Public sensory interface for a future neural model. IDs and labels stay stable.
+  window.FruitFlyWorld = {
+    getEnvironment(){return {terrain:terrain.map(x=>({...x})),features:landmarks.map(x=>({...x})),food:state.foods.map(x=>({id:x.id,type:"food",label:x.label,subtype:x.type,x:x.x,y:x.y,amount:x.amount})),water:state.waters.map((x,i)=>({id:"water-source-"+(i+1),type:"water",label:"Water / moisture",x:x.x,y:x.y,amount:x.amount}))};},
+    getObservation(subjectId){
+      const fly=state.flies.find(x=>x.sex===subjectId||("fly-"+(x.sex==="male"?"001":"002"))===subjectId);
+      if(!fly)return null;
+      const entities=[...terrain,...landmarks,...state.foods.map(x=>({...x,type:"food",description:x.type+" food source"})),...state.waters.map((x,i)=>({...x,id:"water-source-"+(i+1),type:"water",label:"Water / moisture",description:"Moisture source"}))];
+      const nearby=entities.map(e=>({...e,distance:Math.hypot(e.x-fly.x,e.y-fly.y)})).filter(e=>e.distance<.42).sort((a,b)=>a.distance-b.distance);
+      const underfoot=terrain.filter(t=>Math.hypot(t.x-fly.x,t.y-fly.y)<t.radius+.035).sort((a,b)=>Math.hypot(a.x-fly.x,a.y-fly.y)-Math.hypot(b.x-fly.x,b.y-fly.y))[0]||terrain[0];
+      return {subjectId:"fly-"+(fly.sex==="male"?"001":"002"),terrainUnderfoot:underfoot,nearbyEntities:nearby,wallClosed:state.wallClosed,needs:{hunger:fly.hunger,hydration:fly.hydration,energy:fly.energy}};
+    }
   };
   let width=0,height=0,dpr=1,raf=0;
   function drawGround(){
@@ -87,11 +110,41 @@
     for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(-1,side*3);ctx.lineTo(-5,side*12);ctx.lineTo(-10,side*14);ctx.moveTo(4,side*3);ctx.lineTo(7,side*11);ctx.stroke();}
     ctx.restore();
   }
+  function drawEnvironment(){
+    // Ground patches are visual regions, not just decorative labels.
+    const patches=[
+      {x:.29,y:.48,rx:.13,ry:.18,fill:"rgba(80,112,69,.62)",stroke:"rgba(157,184,126,.45)"},
+      {x:.72,y:.47,rx:.12,ry:.18,fill:"rgba(112,78,49,.58)",stroke:"rgba(190,145,94,.42)"},
+      {x:.50,y:.50,rx:.19,ry:.25,fill:"rgba(80,80,83,.18)",stroke:"rgba(190,190,195,.12)"}
+    ];
+    patches.forEach(p=>{ctx.save();ctx.fillStyle=p.fill;ctx.strokeStyle=p.stroke;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(p.x*width,p.y*height,p.rx*width,p.ry*height,-.12,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();});
+    // Pebbles: individually recognisable stones.
+    ctx.save();for(let i=0;i<9;i++){const x=(.445+(i%3)*.035)*width,y=(.215+Math.floor(i/3)*.028)*height;ctx.fillStyle=["#777875","#a09a8e","#5e6262"][i%3];ctx.beginPath();ctx.ellipse(x,y,7+(i%3)*2,5+(i%2)*2,.3*i,0,Math.PI*2);ctx.fill();}
+    // Curled leaf shelter.
+    ctx.fillStyle="#71834e";ctx.strokeStyle="#b0b77a";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(.16*width,.64*height);ctx.quadraticCurveTo(.19*width,.54*height,.27*width,.59*height);ctx.quadraticCurveTo(.31*width,.64*height,.26*width,.70*height);ctx.quadraticCurveTo(.21*width,.66*height,.16*width,.64*height);ctx.fill();ctx.stroke();
+    ctx.strokeStyle="#d0c58b";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(.17*width,.64*height);ctx.quadraticCurveTo(.23*width,.62*height,.28*width,.60*height);ctx.stroke();
+    // Twig arch.
+    ctx.strokeStyle="#b18a5e";ctx.lineWidth=7;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(.73*width,.68*height);ctx.quadraticCurveTo(.78*width,.55*height,.83*width,.68*height);ctx.stroke();
+    ctx.strokeStyle="#d0aa78";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(.73*width,.67*height);ctx.quadraticCurveTo(.78*width,.56*height,.83*width,.67*height);ctx.stroke();
+    // Bark chip.
+    ctx.fillStyle="#765337";ctx.beginPath();ctx.moveTo(.49*width,.77*height);ctx.lineTo(.54*width,.75*height);ctx.lineTo(.56*width,.79*height);ctx.lineTo(.51*width,.81*height);ctx.closePath();ctx.fill();
+    ctx.restore();
+    // Labels are stable visual names that match the structured sensory catalogue.
+    ctx.save();ctx.font="10px system-ui";ctx.textAlign="center";ctx.fillStyle="#f0eee5";ctx.shadowColor="#000";ctx.shadowBlur=5;
+    ctx.fillText("MOSS PATCH",.29*width,.48*height+.21*height);
+    ctx.fillText("BARK RIDGE",.72*width,.47*height+.21*height);
+    ctx.fillText("PEBBLES",.50*width,.19*height);
+    ctx.fillText("LEAF SHELTER",.22*width,.73*height);
+    ctx.fillText("TWIG ARCH",.78*width,.72*height);
+    ctx.fillText("OPEN GROUND",.50*width,.56*height);
+    ctx.restore();
+  }
   function draw(){
     if(!width||!height)return;ctx.clearRect(0,0,width,height);
     // Pull the scene back slightly so both complete compartments fit in view.
     ctx.save();ctx.translate(width*.05,height*.05);ctx.scale(.90,.90);
     // Slightly zoomed-out layout: two equal habitat compartments.
+    drawEnvironment();
     state.foods.forEach(food=>drawResource(food,food.type));
     state.waters.forEach(w=>drawResource({...w,label:"WATER"},"water"));
     // Divider is a physical boundary while closed; it also blocks all cross-compartment sensing.
@@ -123,17 +176,27 @@
     const nearest=foods.sort((a,b)=>Math.hypot(a.x-fly.x,a.y-fly.y)-Math.hypot(b.x-fly.x,b.y-fly.y))[0];
     const waters=state.waters.filter(w=>w.amount>0&&(!state.wallClosed||w.side===side));
     const nearestWater=waters.sort((a,b)=>Math.hypot(a.x-fly.x,a.y-fly.y)-Math.hypot(b.x-fly.x,b.y-fly.y))[0];
-    const target=fly.hydration<55?(nearestWater||nearest):(nearest||nearestWater);
-    if(!target)return;
+    let target=null;
+    // Only seek resources when a need is significant; otherwise explore the habitat.
+    if(fly.hydration<62)target=nearestWater;
+    if(!target&&fly.hunger>42)target=nearest;
+    if(!fly.exploreTimer||fly.exploreTimer<=0||!fly.exploreTarget){
+      const minX=state.wallClosed?(fly.sex==="male"?.06:.54):.06;
+      const maxX=state.wallClosed?(fly.sex==="male"?.46:.94):.94;
+      fly.exploreTarget={x:minX+Math.random()*(maxX-minX),y:.16+Math.random()*.68};
+      fly.exploreTimer=8+Math.random()*12;
+    }
+    fly.exploreTimer-=dt;
+    if(!target)target=fly.exploreTarget;
     const dx=target.x-fly.x,dy=target.y-fly.y,distance=Math.hypot(dx,dy);
-    if(distance>.035){
-      fly.angle=Math.atan2(dy,dx);const step=Math.min(distance,dt*.035);
+    if(distance>.025){
+      fly.angle=Math.atan2(dy,dx);const step=Math.min(distance,dt*.028);
       fly.x+=dx/distance*step;fly.y+=dy/distance*step;
     }else if(state.waters.includes(target)){
       fly.hydration=Math.min(100,fly.hydration+dt*6);target.amount=Math.max(0,target.amount-dt*.2);
-    }else{
+    }else if(state.foods.includes(target)){
       fly.hunger=Math.max(0,fly.hunger-dt*5);target.amount=Math.max(0,target.amount-dt*.25);
-    }
+    }else if(target===fly.exploreTarget){fly.exploreTimer=0;}
     // The closed wall physically constrains each fly to its own half.
     if(state.wallClosed)fly.x=fly.sex==="male"?Math.min(.47,Math.max(.04,fly.x)):Math.min(.96,Math.max(.53,fly.x));
     else fly.x=Math.max(.04,Math.min(.96,fly.x));
@@ -156,6 +219,8 @@
     $("waterAmount").textContent=Math.round(state.waters[0].amount)+"%";
     const t=Math.floor(state.elapsed);$("simClock").textContent="Day 1 · "+String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0");
   }
+  // The habitat API is deliberately separate from movement: a neural model can
+  // read typed sensory observations without relying on screen pixels or UI text.
   function setWall(closed){
     state.wallClosed=closed;const button=$("wallToggle");
     button.textContent=closed?"▥ Wall: ON":"▥ Wall: REMOVED";button.classList.toggle("open",!closed);button.setAttribute("aria-pressed",String(closed));
