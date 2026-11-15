@@ -160,3 +160,25 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
   .zoom-controls .zoom-button{width:31px;height:31px}
   .zoom-controls .zoom-reset{padding:6px 7px}
 }
+
+
+/* Final responsive square frame: override all earlier tall-screen sizing rules. */
+.habitat-screen{
+  width:min(100%,90svh) !important;
+  height:min(90svh,100vw) !important;
+  min-height:0 !important;
+  max-height:90svh;
+  aspect-ratio:1 / 1;
+  margin-inline:auto;
+  flex:none;
+}
+@media(max-width:650px){
+  .habitat-screen{
+    width:100vw !important;
+    height:100vw !important;
+    min-height:0 !important;
+    max-height:100vw;
+    aspect-ratio:1 / 1;
+    margin-inline:calc(50% - 50vw);
+  }
+}
