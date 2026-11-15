@@ -90,4 +90,7 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .feature-swatch.petals{background:radial-gradient(ellipse at 50% 15%,#e6a2ad 0 5px,transparent 6px),radial-gradient(ellipse at 85% 50%,#c8798c 0 5px,transparent 6px),radial-gradient(ellipse at 15% 50%,#d995a0 0 5px,transparent 6px),#64504a}
 .feature-swatch.pod{background:radial-gradient(ellipse at center,#241d17 0 35%,#a47d52 38% 65%,#58402d 68%)}
 .feature-swatch.root{background:linear-gradient(155deg,transparent 35%,#b58b5d 38% 55%,transparent 58%),#4c4032}
+.feature-swatch.eggfruit{background:radial-gradient(ellipse at 55% 55%,#b87b4c 0 38%,#63422e 42% 72%,#39352b 75%)}
+.feature-swatch.eggshelter{background:radial-gradient(ellipse at center,#8aa17a 0 30%,#536a43 34% 62%,#343c2d 66%)}
+.feature-swatch.eggleaf{background:repeating-linear-gradient(145deg,#9b8053 0 3px,#5d6843 3px 6px)}
 @media(max-width:650px){.feature-list{grid-template-columns:1fr 1fr;gap:12px 8px}.habitat-screen{height:573svh;min-height:850px}.world-legend{flex-wrap:wrap;max-width:calc(100% - 28px);top:142px;bottom:auto}}
