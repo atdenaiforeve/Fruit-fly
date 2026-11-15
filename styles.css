@@ -51,3 +51,7 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-1.1px;margin:0 0 4px}h2{font-s
 footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:14px;border-top:1px solid var(--line);color:#a0a0a6;font-size:9px;letter-spacing:1px}
 @media(max-width:650px){.info-grid{grid-template-columns:1fr;row-gap:28px}.information{padding:30px 14px 20px}.habitat-label{top:14px;left:14px}.habitat-status{top:18px;right:14px}.habitat-controls{left:12px;bottom:12px;right:12px}.world-legend{left:14px;bottom:82px}.scroll-cue{right:15px;bottom:100px}.control-note{margin-left:auto}}
 @media(max-width:390px){.button{padding:8px 10px}.control-note{width:100%;margin:0 0 0 2px}.scroll-cue span{font-size:8px}}
+
+.wall-button{border-color:#9b8b70;color:#f0d9ae;background:rgba(65,53,37,.92)}
+.wall-button.open{border-color:#80b8a0;color:#bce8d5;background:rgba(31,66,52,.92)}
+@media(max-width:650px){.wall-button{order:4}}
