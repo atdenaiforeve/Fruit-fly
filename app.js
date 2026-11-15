@@ -20,14 +20,14 @@
     running:false, elapsed:0, lastFrame:0, wallClosed:true,
     flies:[makeFly(.25,.5,"male"),makeFly(.75,.5,"female")],
     foods:[
-      {id:"fruit-m",type:"fruit",x:.12,y:.29,amount:100,label:"FRUIT",side:"male"},
-      {id:"yeast-m",type:"yeast",x:.39,y:.42,amount:100,label:"YEAST",side:"male"},
-      {id:"sugar-m",type:"sugar",x:.13,y:.79,amount:100,label:"SAP",side:"male"},
-      {id:"fruit-f",type:"fruit",x:.88,y:.29,amount:100,label:"FRUIT",side:"female"},
-      {id:"yeast-f",type:"yeast",x:.61,y:.42,amount:100,label:"YEAST",side:"female"},
-      {id:"sugar-f",type:"sugar",x:.87,y:.79,amount:100,label:"SAP",side:"female"}
+      {id:"fruit-m",type:"fruit",x:.12,y:.13,amount:100,label:"FRUIT",side:"male"},
+      {id:"yeast-m",type:"yeast",x:.39,y:.48,amount:100,label:"YEAST",side:"male"},
+      {id:"sugar-m",type:"sugar",x:.13,y:.89,amount:100,label:"SAP",side:"male"},
+      {id:"fruit-f",type:"fruit",x:.88,y:.13,amount:100,label:"FRUIT",side:"female"},
+      {id:"yeast-f",type:"yeast",x:.61,y:.48,amount:100,label:"YEAST",side:"female"},
+      {id:"sugar-f",type:"sugar",x:.87,y:.89,amount:100,label:"SAP",side:"female"}
     ],
-    waters:[{x:.39,y:.76,amount:100,side:"male"},{x:.61,y:.76,amount:100,side:"female"}],
+    waters:[{x:.32,y:.68,amount:100,side:"male"},{x:.68,y:.68,amount:100,side:"female"}],
     events:[]
   };
   // Public sensory interface for a future neural model. IDs and labels stay stable.
@@ -89,7 +89,7 @@
     $("eventLog").innerHTML=state.events.map(e=>"<p><time>"+e.time+"</time><span>"+e.message+"</span></p>").join("");
   }
   function drawResource(resource,type){
-    const x=resource.x*width,y=resource.y*height;ctx.save();
+    const x=resource.x*width,y=resource.y*height;ctx.save();ctx.translate(x,y);ctx.scale(.68,.68);ctx.translate(-x,-y);
     if(type==="fruit"){
       ctx.fillStyle="#70452f";ctx.beginPath();ctx.ellipse(x,y,22,16,-.2,0,Math.PI*2);ctx.fill();
       ctx.fillStyle="#bd8050";ctx.beginPath();ctx.ellipse(x-3,y-3,17,12,-.2,0,Math.PI*2);ctx.fill();
@@ -109,7 +109,7 @@
   }
   function drawFly(fly){
     const x=fly.x*width,y=fly.y*height,isFemale=fly.sex==="female",isFlying=!!fly.isFlying;
-    ctx.save();ctx.translate(x,y);ctx.rotate(fly.angle);
+    ctx.save();ctx.translate(x,y);ctx.scale(.70,.70);ctx.rotate(fly.angle);
     // Fast-flight wing blur: a faint cool-blue motion trail while moving;
     // wings return to their normal clear appearance when the fly settles.
     if(isFlying){
@@ -219,7 +219,7 @@
     if(!fly.exploreTimer||fly.exploreTimer<=0||!fly.exploreTarget){
       const minX=state.wallClosed?(fly.sex==="male"?.06:.54):.06;
       const maxX=state.wallClosed?(fly.sex==="male"?.46:.94):.94;
-      fly.exploreTarget={x:minX+Math.random()*(maxX-minX),y:.16+Math.random()*.68};
+      fly.exploreTarget={x:minX+Math.random()*(maxX-minX),y:.10+Math.random()*.80};
       fly.exploreTimer=6+Math.random()*9;
     }
     fly.exploreTimer-=dt;
@@ -237,7 +237,7 @@
     // The closed wall physically constrains each fly to its own half.
     if(state.wallClosed)fly.x=fly.sex==="male"?Math.min(.47,Math.max(.04,fly.x)):Math.min(.96,Math.max(.53,fly.x));
     else fly.x=Math.max(.04,Math.min(.96,fly.x));
-    fly.y=Math.max(.12,Math.min(.88,fly.y));
+    fly.y=Math.max(.08,Math.min(.92,fly.y));
   }
   function update(dt){
     state.elapsed+=dt;state.flies.forEach(f=>moveFly(f,dt));
