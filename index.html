@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b20">
+  <meta name="description" content="A local, browser-based fruit fly environment simulation.">
+  <title>Fruit Fly — Environment Monitor</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Fruit Fly home">
+        <span class="brand-mark">✳</span>
+        <span>FRUIT FLY<span class="brand-sub">DIGITAL EXPERIMENTS</span></span>
+      </a>
+      <div class="runtime"><span class="pulse"></span> LOCAL SIMULATION</div>
+    </header>
+
+    <section class="intro">
+      <div>
+        <p class="eyebrow">EXPERIMENT 001 · DEVELOPMENT BUILD</p>
+        <h1>Environment monitor</h1>
+        <p class="muted">A small world for observing a digital fruit fly.</p>
+      </div>
+      <div class="status-pill" id="runStatus"><span class="status-dot"></span> PAUSED</div>
+    </section>
+
+    <section class="workspace">
+      <article class="panel world-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">LIVE ENVIRONMENT</p><h2>Habitat 01</h2></div>
+          <span class="coordinate" id="coordinates">X: 50 · Y: 50</span>
+        </div>
+        <div class="world-wrap">
+          <canvas id="world" aria-label="Top-down 2D fruit fly habitat"></canvas>
+          <div class="world-legend">
+            <span><i class="legend-fly"></i> Fly</span>
+            <span><i class="legend-food"></i> Food</span>
+            <span><i class="legend-water"></i> Water</span>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="button primary" id="startBtn">▶ Start</button>
+          <button class="button" id="pauseBtn" disabled>Ⅱ Pause</button>
+          <button class="button quiet" id="resetBtn">↺ Reset</button>
+          <span class="control-note" id="simClock">Day 1 · 00:00</span>
+        </div>
+      </article>
+
+      <aside class="side-stack">
+        <article class="panel fly-card">
+          <div class="panel-heading"><div><p class="eyebrow">SUBJECT</p><h2>Fruit fly #001</h2></div><span class="alive-tag">● ALIVE</span></div>
+          <div class="fly-illustration" aria-hidden="true">
+            <svg viewBox="0 0 320 150" role="img">
+              <ellipse cx="158" cy="76" rx="72" ry="26" fill="#9bd7c2" opacity=".12"/>
+              <path d="M143 66 C116 10 73 20 98 65 C109 83 129 84 148 79Z" fill="#b8d9df" opacity=".72" stroke="#d9f1eb" stroke-width="2"/>
+              <path d="M166 65 C190 12 235 20 211 65 C201 83 180 84 162 79Z" fill="#b8d9df" opacity=".72" stroke="#d9f1eb" stroke-width="2"/>
+              <ellipse cx="159" cy="79" rx="47" ry="17" fill="#283d3a" stroke="#9bd7c2" stroke-width="2"/>
+              <path d="M185 75 Q218 72 232 80 Q218 90 185 84Z" fill="#cf986d"/>
+              <circle cx="119" cy="78" r="14" fill="#b77e62"/>
+              <circle cx="114" cy="74" r="4" fill="#e7a3a0"/>
+              <path d="M135 87 L124 113 M151 91 L148 119 M174 90 L187 115 M137 68 L126 48 M173 67 L188 48" stroke="#b8c9b9" stroke-width="3" stroke-linecap="round"/>
+              <path d="M111 67 Q99 48 91 46 M122 66 Q117 44 121 38" stroke="#b8c9b9" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <div class="stats-grid">
+            <div class="stat"><span>POSITION</span><strong id="positionStat">50, 50</strong></div>
+            <div class="stat"><span>ENERGY</span><strong id="energyStat">100%</strong></div>
+            <div class="stat"><span>HUNGER</span><strong id="hungerStat">0%</strong></div>
+            <div class="stat"><span>HYDRATION</span><strong id="waterStat">100%</strong></div>
+          </div>
+          <p class="model-note"><span class="model-dot"></span> Neural model: <strong>Not connected</strong></p>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">COLONY RECORD</p><h2>Population</h2></div><span class="tiny-label">LIFECYCLE</span></div>
+          <div class="population-row"><div><span class="big-number" id="population">1</span><span class="muted"> living adults</span></div><span class="population-icon">♧</span></div>
+          <div class="mini-stats">
+            <div><span>Eggs laid</span><strong id="eggsLaid">0</strong></div>
+            <div><span>Eggs developing</span><strong id="eggsDeveloping">0</strong></div>
+            <div><span>Larvae / pupae</span><strong id="youngCount">0</strong></div>
+          </div>
+        </article>
+      </aside>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="panel resource-panel">
+        <div class="panel-heading"><div><p class="eyebrow">ENVIRONMENT</p><h2>Resources</h2></div><span class="tiny-label">HABITAT SUPPLY</span></div>
+        <div class="resource-row"><span class="resource-icon food-icon">✿</span><div class="resource-info"><strong>Food source</strong><span>Fermenting fruit</span></div><strong class="resource-amount" id="foodAmount">100%</strong></div>
+        <div class="resource-row"><span class="resource-icon water-icon">◒</span><div class="resource-info"><strong>Water source</strong><span>Moisture pool</span></div><strong class="resource-amount" id="waterAmount">100%</strong></div>
+      </article>
+      <article class="panel log-panel">
+        <div class="panel-heading"><div><p class="eyebrow">OBSERVATIONS</p><h2>Event log</h2></div><span class="tiny-label">LOCAL</span></div>
+        <div class="event-list" id="eventLog" aria-live="polite"><p><time>00:00</time><span>Habitat initialised. Subject #001 added.</span></p><p><time>00:00</time><span>Neural model is not connected.</span></p></div>
+      </article>
+    </section>
+
+    <footer><span>FRUIT FLY · EXPERIMENT 001</span><span>Runs in this browser · No simulation server</span></footer>
+  </main>
+</body>
+</html>
