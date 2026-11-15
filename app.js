@@ -14,7 +14,8 @@
   let width = 0, height = 0, dpr = 1, raf = 0;
 
   function drawGround() {
-    const w = window.innerWidth, h = window.innerHeight;
+    const w = window.innerWidth, h = Math.max(document.documentElement.scrollHeight, window.innerHeight);
+    ground.style.height = h + "px";
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
     ground.width = Math.round(w * ratio); ground.height = Math.round(h * ratio);
     groundCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
