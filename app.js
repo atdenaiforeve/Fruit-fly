@@ -7,8 +7,12 @@
   const state = {
     running: false, elapsed: 0, lastFrame: 0, frame: 0,
     fly: { x: 0.5, y: 0.5, angle: 0.2, energy: 100, hunger: 0, hydration: 100 },
-    food: { x: 0.27, y: 0.66, amount: 100 },
-    water: { x: 0.76, y: 0.34, amount: 100 },
+    foods: [
+      { id: "fruit", type: "fruit", x: 0.22, y: 0.68, amount: 100, label: "FERMENTING FRUIT" },
+      { id: "yeast", type: "yeast", x: 0.72, y: 0.68, amount: 100, label: "YEAST" },
+      { id: "sugar", type: "sugar", x: 0.72, y: 0.30, amount: 100, label: "SUGARY FLUID" }
+    ],
+    water: { x: 0.25, y: 0.30, amount: 100 },
     events: []
   };
   let width = 0, height = 0, dpr = 1, raf = 0;
@@ -85,16 +89,28 @@
   function drawResource(resource, type) {
     const x = resource.x * width, y = resource.y * height;
     ctx.save();
-    if (type === "food") {
-      ctx.fillStyle = "#8e5f3d"; ctx.beginPath(); ctx.ellipse(x, y, 23, 16, -.2, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#c58b56"; ctx.beginPath(); ctx.ellipse(x - 3, y - 3, 18, 12, -.2, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = "#668c58"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x + 3, y - 13); ctx.lineTo(x + 7, y - 21); ctx.stroke();
-      ctx.fillStyle = "#d7a66e"; ctx.font = "10px system-ui"; ctx.textAlign = "center"; ctx.fillText("FOOD", x, y + 31);
+    if (type === "fruit") {
+      ctx.fillStyle = "#70452f"; ctx.beginPath(); ctx.ellipse(x, y, 27, 19, -.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#bd8050"; ctx.beginPath(); ctx.ellipse(x - 4, y - 4, 21, 14, -.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#e0b078"; ctx.globalAlpha = .75;
+      for (let i=0;i<8;i++){const a=i*2.4;ctx.beginPath();ctx.arc(x+Math.cos(a)*12,y+Math.sin(a)*8,2,0,Math.PI*2);ctx.fill();}
+      ctx.globalAlpha = 1; ctx.strokeStyle = "#668c58"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(x + 2, y - 15); ctx.lineTo(x + 6, y - 24); ctx.stroke();
+    } else if (type === "yeast") {
+      ctx.fillStyle = "#8a7956"; ctx.beginPath(); ctx.ellipse(x,y,25,15,.15,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#d2c29a";
+      for(let i=0;i<13;i++){const a=i*2.399;const r=4+(i%4)*4;ctx.beginPath();ctx.arc(x+Math.cos(a)*r,y+Math.sin(a)*r*.55,2.5+(i%3),0,Math.PI*2);ctx.fill();}
+    } else if (type === "sugar") {
+      ctx.fillStyle = "rgba(213,178,91,.34)"; ctx.beginPath(); ctx.ellipse(x,y,25,14,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#e6cf87"; ctx.beginPath(); ctx.ellipse(x,y,17,8,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#fff0bd"; ctx.beginPath(); ctx.ellipse(x-5,y-3,6,2,-.2,0,Math.PI*2); ctx.fill();
     } else {
       ctx.fillStyle = "#3b8791"; ctx.beginPath(); ctx.ellipse(x, y, 22, 14, 0, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = "#80cbd2"; ctx.beginPath(); ctx.ellipse(x - 3, y - 3, 15, 7, -.1, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#a8e2e0"; ctx.font = "10px system-ui"; ctx.textAlign = "center"; ctx.fillText("WATER", x, y + 29);
     }
+    ctx.fillStyle = "#f0eeee"; ctx.font = "10px system-ui"; ctx.textAlign = "center";
+    ctx.shadowColor = "#000"; ctx.shadowBlur = 5;
+    ctx.fillText(resource.label || "WATER", x, y + 34);
     ctx.restore();
   }
   function drawFly() {
@@ -114,7 +130,8 @@
   function draw() {
     if (!width || !height) return;
     ctx.clearRect(0, 0, width, height);
-    drawResource(state.food, "food"); drawResource(state.water, "water"); drawFly();
+    state.foods.forEach(food => drawResource(food, food.type));
+    drawResource({ ...state.water, label: "WATER" }, "water"); drawFly();
   }
   function update(dt) {
     state.elapsed += dt;
@@ -123,14 +140,18 @@
     f.hydration = Math.max(0, f.hydration - dt * .42);
     f.energy = Math.max(0, f.energy - dt * .12);
     // Temporary placeholder movement for the visual prototype; not a neural model.
-    const target = f.hunger > 45 ? state.food : (f.hydration < 55 ? state.water : state.food);
+    const availableFoods = state.foods.filter(food => food.amount > 0);
+    const nearestFood = availableFoods.sort((a,b) =>
+      Math.hypot(a.x-f.x,a.y-f.y)-Math.hypot(b.x-f.x,b.y-f.y)
+    )[0];
+    const target = f.hydration < 55 ? state.water : (nearestFood || state.water);
     const dx = target.x - f.x, dy = target.y - f.y, distance = Math.hypot(dx, dy);
     if (distance > .035) {
       f.angle = Math.atan2(dy, dx);
       const step = Math.min(distance, dt * .035);
       f.x += dx / distance * step; f.y += dy / distance * step;
-    } else if (target === state.food && state.food.amount > 0) {
-      f.hunger = Math.max(0, f.hunger - dt * 5); state.food.amount = Math.max(0, state.food.amount - dt * .25);
+    } else if (target !== state.water && target.amount > 0) {
+      f.hunger = Math.max(0, f.hunger - dt * 5); target.amount = Math.max(0, target.amount - dt * .25);
     } else if (target === state.water && state.water.amount > 0) {
       f.hydration = Math.min(100, f.hydration + dt * 6); state.water.amount = Math.max(0, state.water.amount - dt * .2);
     }
@@ -140,11 +161,12 @@
   function renderStats() {
     const f = state.fly;
     $("positionStat").textContent = Math.round(f.x * 100) + ", " + Math.round(f.y * 100);
-    $("coordinates").textContent = "X: " + Math.round(f.x * 100) + " · Y: " + Math.round(f.y * 100);
     $("energyStat").textContent = Math.round(f.energy) + "%";
     $("hungerStat").textContent = Math.round(f.hunger) + "%";
     $("waterStat").textContent = Math.round(f.hydration) + "%";
-    $("foodAmount").textContent = Math.round(state.food.amount) + "%";
+    $("fruitAmount").textContent = Math.round(state.foods.find(food => food.id === "fruit").amount) + "%";
+    $("yeastAmount").textContent = Math.round(state.foods.find(food => food.id === "yeast").amount) + "%";
+    $("sugarAmount").textContent = Math.round(state.foods.find(food => food.id === "sugar").amount) + "%";
     $("waterAmount").textContent = Math.round(state.water.amount) + "%";
     const t = Math.floor(state.elapsed);
     $("simClock").textContent = "Day 1 · " + String(Math.floor(t / 60)).padStart(2, "0") + ":" + String(t % 60).padStart(2, "0");
@@ -171,7 +193,7 @@
   $("resetBtn").addEventListener("click", () => {
     state.running = false; cancelAnimationFrame(raf);
     state.elapsed = 0; state.fly = { x: .5, y: .5, angle: .2, energy: 100, hunger: 0, hydration: 100 };
-    state.food.amount = 100; state.water.amount = 100; state.events = [];
+    state.foods.forEach(food => food.amount = 100); state.water.amount = 100; state.events = [];
     $("startBtn").disabled = false; $("pauseBtn").disabled = true;
     $("runStatus").innerHTML = '<span class="status-dot"></span> PAUSED';
     log("Habitat reset. Subject #001 restored.");
