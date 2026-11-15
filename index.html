@@ -32,6 +32,7 @@
         <button class="button primary" id="startBtn">▶ Start</button>
         <button class="button" id="pauseBtn" disabled>Ⅱ Pause</button>
         <button class="button quiet" id="resetBtn">↺ Reset</button>
+        <button class="button wall-button" id="wallToggle" aria-pressed="true">▥ Wall: ON</button>
         <span class="control-note" id="simClock">Day 1 · 00:00</span>
       </div>
 
@@ -42,19 +43,28 @@
       <header class="info-heading">
         <p class="eyebrow">EXPERIMENT 001</p>
         <h1>Habitat information</h1>
+        <p class="muted">Two isolated subjects · Wall blocks crossing and detection until removed.</p>
         <p class="muted">Measurements and observations from the current environment.</p>
       </header>
 
       <div class="info-grid">
         <article class="panel">
-          <div class="panel-heading"><div><p class="eyebrow">SUBJECT</p><h2>Fruit fly #001</h2></div><span class="alive-tag">● ALIVE</span></div>
+          <div class="panel-heading"><div><p class="eyebrow">SUBJECT</p><h2>Male fruit fly #001</h2></div><span class="alive-tag">● ALIVE</span></div>
           <div class="stats-grid">
             <div class="stat"><span>POSITION</span><strong id="positionStat">50, 50</strong></div>
             <div class="stat"><span>ENERGY</span><strong id="energyStat">100%</strong></div>
             <div class="stat"><span>HUNGER</span><strong id="hungerStat">0%</strong></div>
             <div class="stat"><span>HYDRATION</span><strong id="waterStat">100%</strong></div>
           </div>
-          <p class="data-note">Basic environment prototype · No brain model connected</p>
+          <p class="data-note">Male compartment · Basic environment prototype · No brain model connected</p>
+          <div class="panel-heading" style="margin-top:18px"><div><p class="eyebrow">SUBJECT</p><h2>Female fruit fly #002</h2></div><span class="alive-tag">● ALIVE</span></div>
+          <div class="stats-grid">
+            <div class="stat"><span>POSITION</span><strong id="femalePositionStat">75, 50</strong></div>
+            <div class="stat"><span>ENERGY</span><strong id="femaleEnergyStat">100%</strong></div>
+            <div class="stat"><span>HUNGER</span><strong id="femaleHungerStat">0%</strong></div>
+            <div class="stat"><span>HYDRATION</span><strong id="femaleWaterStat">100%</strong></div>
+          </div>
+          <p class="data-note">Female compartment · Separate resources and movement</p>
         </article>
 
         <article class="panel">
