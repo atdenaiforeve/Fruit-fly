@@ -169,13 +169,28 @@
   function drawEnvironment(){
     // Ground patches are visual regions, not just decorative labels.
     const patches=[
-      {x:.29,y:.48,rx:.13,ry:.18,fill:"rgba(80,112,69,.62)",stroke:"rgba(157,184,126,.45)"},
-      {x:.72,y:.47,rx:.12,ry:.18,fill:"rgba(112,78,49,.58)",stroke:"rgba(190,145,94,.42)"},
-      {x:.50,y:.50,rx:.19,ry:.25,fill:"rgba(80,80,83,.18)",stroke:"rgba(190,190,195,.12)"}
+      {x:.29,y:.48,rx:.13,ry:.18,colors:["#718c5c","#405c3d","#263d2c"],stroke:"rgba(185,207,143,.45)"},
+      {x:.72,y:.47,rx:.12,ry:.18,colors:["#ad8052","#725036","#3d3025"],stroke:"rgba(215,171,116,.4)"},
+      {x:.50,y:.50,rx:.19,ry:.25,colors:["rgba(135,137,119,.22)","rgba(77,83,68,.15)","rgba(43,49,39,.1)"],stroke:"rgba(190,190,155,.14)"}
     ];
-    patches.forEach(p=>{ctx.save();ctx.fillStyle=p.fill;ctx.strokeStyle=p.stroke;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(p.x*width,p.y*height,p.rx*width,p.ry*height,-.12,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();});
-    // Pebbles: individually recognisable stones.
-    ctx.save();for(let i=0;i<9;i++){const x=(.445+(i%3)*.035)*width,y=(.215+Math.floor(i/3)*.028)*height;ctx.fillStyle=["#777875","#a09a8e","#5e6262"][i%3];ctx.beginPath();ctx.ellipse(x,y,7+(i%3)*2,5+(i%2)*2,.3*i,0,Math.PI*2);ctx.fill();}
+    patches.forEach((p,index)=>{
+      const px=p.x*width,py=p.y*height,rx=p.rx*width,ry=p.ry*height;
+      ctx.save();ctx.shadowColor="rgba(0,0,0,.38)";ctx.shadowBlur=18;ctx.shadowOffsetY=7;
+      const g=ctx.createRadialGradient(px-rx*.25,py-ry*.32,2,px,py,Math.max(rx,ry));
+      g.addColorStop(0,p.colors[0]);g.addColorStop(.62,p.colors[1]);g.addColorStop(1,p.colors[2]);
+      ctx.fillStyle=g;ctx.strokeStyle=p.stroke;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(px,py,rx,ry,-.12,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.shadowColor="transparent";
+      for(let i=0;i<42;i++){const angle=i*2.399+index,dist=.18+((i*37)%79)/100;const sx=px+Math.cos(angle)*rx*dist,sy=py+Math.sin(angle)*ry*dist;ctx.fillStyle=index===0?(i%2?"rgba(184,204,135,.35)":"rgba(25,43,27,.3)"):index===1?(i%2?"rgba(213,168,111,.32)":"rgba(43,30,21,.3)"):"rgba(230,220,184,.1)";ctx.beginPath();ctx.ellipse(sx,sy,1.5+(i%3),.7+(i%2),angle,0,Math.PI*2);ctx.fill();}
+      ctx.restore();
+    });
+    // Pebbles: rounded stones with individual highlights, shading and ground shadows.
+    ctx.save();for(let i=0;i<9;i++){
+      const x=(.445+(i%3)*.035)*width,y=(.215+Math.floor(i/3)*.028)*height,rx=7+(i%3)*2,ry=5+(i%2)*2;
+      ctx.shadowColor="rgba(0,0,0,.5)";ctx.shadowBlur=5;ctx.shadowOffsetY=3;
+      const stone=ctx.createLinearGradient(x-rx,y-ry,x+rx,y+ry);stone.addColorStop(0,"#c0b9aa");stone.addColorStop(.35,["#85877f","#aaa194","#6d7472"][i%3]);stone.addColorStop(1,"#383d3a");
+      ctx.fillStyle=stone;ctx.beginPath();ctx.ellipse(x,y,rx,ry,.3*i,0,Math.PI*2);ctx.fill();
+      ctx.shadowColor="transparent";ctx.strokeStyle="rgba(235,228,207,.42)";ctx.lineWidth=.8;ctx.beginPath();ctx.ellipse(x-1,y-1,rx*.58,ry*.35,.3*i,Math.PI,Math.PI*1.8);ctx.stroke();
+    }
     // Curled leaf shelter.
     ctx.fillStyle="#71834e";ctx.strokeStyle="#b0b77a";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(.16*width,.64*height);ctx.quadraticCurveTo(.19*width,.54*height,.27*width,.59*height);ctx.quadraticCurveTo(.31*width,.64*height,.26*width,.70*height);ctx.quadraticCurveTo(.21*width,.66*height,.16*width,.64*height);ctx.fill();ctx.stroke();
     ctx.strokeStyle="#d0c58b";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(.17*width,.64*height);ctx.quadraticCurveTo(.23*width,.62*height,.28*width,.60*height);ctx.stroke();
@@ -248,7 +263,7 @@
   function draw(){
     if(!width||!height)return;ctx.clearRect(0,0,width,height);
     // Pull the scene back slightly so both complete compartments fit in view.
-    ctx.save();ctx.translate(width*.05,height*.05);ctx.scale(.90,.90);
+    ctx.save();ctx.translate(width*.02,height*.02);ctx.scale(.96,.96);
     // Slightly zoomed-out layout: two equal habitat compartments.
     drawEnvironment();
     state.foods.forEach(food=>drawResource(food,food.type));
