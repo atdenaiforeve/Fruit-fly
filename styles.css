@@ -43,7 +43,7 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-1.1px;margin:0 0 4px}h2{font-s
 .mini-stats{border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.mini-stats strong{font-size:16px}
 .resource-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--line)}
 .resource-icon{width:24px;height:24px;display:grid;place-items:center;font-size:18px}
-.food-icon{background:#4a392b;color:#e8b77e}.water-icon{background:#233e48;color:#8bcbd8}
+.food-icon{color:#e8b77e}.yeast-icon{color:#d9c9a1}.nectar-icon{color:#e2cf8b}.water-icon{color:#8bcbd8}
 .resource-info{display:grid;flex:1}.resource-info strong{font-size:12px}.resource-info span{font-size:10px;color:var(--muted)}
 .resource-amount{font-size:12px;font-variant-numeric:tabular-nums}
 .event-list{display:grid;gap:9px}.event-list p{display:flex;gap:12px;margin:0;font-size:11px;color:#d0d0d4}
