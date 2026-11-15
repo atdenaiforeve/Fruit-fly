@@ -20,6 +20,15 @@
     {id:"landmark-root-bridge",type:"landmark",label:"Twisted root bridge",x:.81,y:.87,radius:.075,description:"A raised twisting root with space beneath it."},
     {id:"landmark-bark-chip",type:"obstacle",label:"Bark chip",x:.52,y:.78,radius:.045,description:"A small piece of loose bark."}
   ];
+  // Suitable egg-laying locations are environment features, not nests or active egg production.
+  const eggLayingSites = [
+    {id:"site-fermenting-fruit-m",type:"egg-laying-site",siteType:"fermenting-fruit",label:"Fermenting fruit patch",x:.30,y:.22,side:"male",radius:.055,description:"A food-rich fruit surface that may suit egg laying."},
+    {id:"site-fermenting-fruit-f",type:"egg-laying-site",siteType:"fermenting-fruit",label:"Fermenting fruit patch",x:.70,y:.22,side:"female",radius:.055,description:"A food-rich fruit surface that may suit egg laying."},
+    {id:"site-sheltered-damp-m",type:"egg-laying-site",siteType:"sheltered-damp-spot",label:"Sheltered damp spot",x:.20,y:.72,side:"male",radius:.06,description:"A protected, moist patch beneath leaf cover."},
+    {id:"site-sheltered-damp-f",type:"egg-laying-site",siteType:"sheltered-damp-spot",label:"Sheltered damp spot",x:.80,y:.72,side:"female",radius:.06,description:"A protected, moist patch beneath leaf cover."},
+    {id:"site-decaying-leaf-m",type:"egg-laying-site",siteType:"decaying-plant-matter",label:"Decaying leaf litter",x:.39,y:.88,side:"male",radius:.06,description:"Soft decaying plant material with nearby food."},
+    {id:"site-decaying-leaf-f",type:"egg-laying-site",siteType:"decaying-plant-matter",label:"Decaying leaf litter",x:.61,y:.88,side:"female",radius:.06,description:"Soft decaying plant material with nearby food."}
+  ];
   const state = {
     running:false, elapsed:0, lastFrame:0, wallClosed:true,
     flies:[makeFly(.25,.5,"male"),makeFly(.75,.5,"female")],
@@ -36,11 +45,11 @@
   };
   // Public sensory interface for a future neural model. IDs and labels stay stable.
   window.FruitFlyWorld = {
-    getEnvironment(){return {terrain:terrain.map(x=>({...x})),features:landmarks.map(x=>({...x})),food:state.foods.map(x=>({id:x.id,type:"food",label:x.label,subtype:x.type,x:x.x,y:x.y,amount:x.amount})),water:state.waters.map((x,i)=>({id:"water-source-"+(i+1),type:"water",label:"Water / moisture",x:x.x,y:x.y,amount:x.amount}))};},
+    getEnvironment(){return {terrain:terrain.map(x=>({...x})),features:landmarks.map(x=>({...x})),eggLayingSites:eggLayingSites.map(x=>({...x})),food:state.foods.map(x=>({id:x.id,type:"food",label:x.label,subtype:x.type,x:x.x,y:x.y,amount:x.amount})),water:state.waters.map((x,i)=>({id:"water-source-"+(i+1),type:"water",label:"Water / moisture",x:x.x,y:x.y,amount:x.amount}))};},
     getObservation(subjectId){
       const fly=state.flies.find(x=>x.sex===subjectId||("fly-"+(x.sex==="male"?"001":"002"))===subjectId);
       if(!fly)return null;
-      const entities=[...terrain,...landmarks,...state.foods.map(x=>({...x,type:"food",description:x.type+" food source"})),...state.waters.map((x,i)=>({...x,id:"water-source-"+(i+1),type:"water",label:"Water / moisture",description:"Moisture source"}))];
+      const entities=[...terrain,...landmarks,...eggLayingSites,...state.foods.map(x=>({...x,type:"food",description:x.type+" food source"})),...state.waters.map((x,i)=>({...x,id:"water-source-"+(i+1),type:"water",label:"Water / moisture",description:"Moisture source"}))];
       const nearby=entities.map(e=>({...e,distance:Math.hypot(e.x-fly.x,e.y-fly.y)})).filter(e=>e.distance<.42).sort((a,b)=>a.distance-b.distance);
       const underfoot=terrain.filter(t=>Math.hypot(t.x-fly.x,t.y-fly.y)<t.radius+.035).sort((a,b)=>Math.hypot(a.x-fly.x,a.y-fly.y)-Math.hypot(b.x-fly.x,b.y-fly.y))[0]||terrain[0];
       return {subjectId:"fly-"+(fly.sex==="male"?"001":"002"),terrainUnderfoot:underfoot,nearbyEntities:nearby,wallClosed:state.wallClosed,needs:{hunger:fly.hunger,hydration:fly.hydration,energy:fly.energy}};
@@ -169,6 +178,29 @@
     // Twisted root bridge on the lower right, with a visible opening underneath.
     ctx.save();ctx.strokeStyle="#513b28";ctx.lineWidth=12;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(.75*width,.89*height);ctx.bezierCurveTo(.77*width,.81*height,.84*width,.81*height,.87*width,.89*height);ctx.stroke();
     ctx.strokeStyle="#a47b4e";ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(.75*width,.885*height);ctx.bezierCurveTo(.77*width,.815*height,.84*width,.815*height,.87*width,.885*height);ctx.stroke();ctx.restore();
+    // Potential egg-laying locations: subtle textured patches, mirrored across both compartments.
+    const sites=[
+      {x:.30,y:.22,kind:"fruit"},{x:.70,y:.22,kind:"fruit"},
+      {x:.20,y:.72,kind:"shelter"},{x:.80,y:.72,kind:"shelter"},
+      {x:.39,y:.88,kind:"litter"},{x:.61,y:.88,kind:"litter"}
+    ];
+    sites.forEach(site=>{
+      const x=site.x*width,y=site.y*height;
+      ctx.save();
+      if(site.kind==="fruit"){
+        ctx.fillStyle="rgba(105,65,39,.68)";ctx.beginPath();ctx.ellipse(x,y,19,10,-.18,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle="#a96d45";ctx.beginPath();ctx.ellipse(x-3,y-2,13,6,-.18,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle="#d5b47c";ctx.beginPath();ctx.arc(x+8,y-5,2,0,Math.PI*2);ctx.fill();
+      }else if(site.kind==="shelter"){
+        ctx.fillStyle="rgba(60,83,48,.72)";ctx.beginPath();ctx.ellipse(x,y,18,10,-.2,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle="#a5ad70";ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,14,Math.PI*1.05,Math.PI*1.9);ctx.stroke();
+        ctx.fillStyle="rgba(143,185,153,.72)";ctx.beginPath();ctx.arc(x,y+2,3,0,Math.PI*2);ctx.fill();
+      }else{
+        ctx.fillStyle="rgba(105,76,47,.72)";ctx.beginPath();ctx.ellipse(x,y,19,9,.12,0,Math.PI*2);ctx.fill();
+        for(let k=0;k<4;k++){ctx.strokeStyle=k%2?"#b18b5e":"#71804b";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-13+k*7,y+3);ctx.lineTo(x-7+k*7,y-4+(k%2)*5);ctx.stroke();}
+      }
+      ctx.restore();
+    });
     // Bark chip.
     ctx.fillStyle="#765337";ctx.beginPath();ctx.moveTo(.49*width,.77*height);ctx.lineTo(.54*width,.75*height);ctx.lineTo(.56*width,.79*height);ctx.lineTo(.51*width,.81*height);ctx.closePath();ctx.fill();
     ctx.restore();
@@ -183,6 +215,9 @@
     ctx.fillText("PETAL FAN",.78*width,.32*height);
     ctx.fillText("SEED-POD TUNNEL",.19*width,.92*height);
     ctx.fillText("ROOT BRIDGE",.81*width,.92*height);
+    ctx.fillText("EGG SITE · FRUIT",.30*width,.25*height);
+    ctx.fillText("EGG SITE · SHELTER",.20*width,.75*height);
+    ctx.fillText("EGG SITE · LEAF LITTER",.39*width,.91*height);
     ctx.fillText("OPEN GROUND",.50*width,.56*height);
     ctx.restore();
   }
