@@ -167,20 +167,60 @@
     ctx.restore();
   }
   function drawEnvironment(){
-    // Ground patches are visual regions, not just decorative labels.
+    // Small, organic ground patches. Their dimensions use the habitat's
+    // shorter side so they stay natural on both tall phones and square screens.
+    const unit=Math.min(width,height);
     const patches=[
-      {x:.29,y:.48,rx:.13,ry:.18,colors:["#718c5c","#405c3d","#263d2c"],stroke:"rgba(185,207,143,.45)"},
-      {x:.72,y:.47,rx:.12,ry:.18,colors:["#ad8052","#725036","#3d3025"],stroke:"rgba(215,171,116,.4)"},
-      {x:.50,y:.50,rx:.19,ry:.25,colors:["rgba(135,137,119,.22)","rgba(77,83,68,.15)","rgba(43,49,39,.1)"],stroke:"rgba(190,190,155,.14)"}
+      {x:.29,y:.48,rx:unit*.105,ry:unit*.075,kind:"moss"},
+      {x:.72,y:.47,rx:unit*.10,ry:unit*.072,kind:"bark"},
+      {x:.50,y:.50,rx:unit*.15,ry:unit*.12,kind:"open"}
     ];
     patches.forEach((p,index)=>{
-      const px=p.x*width,py=p.y*height,rx=p.rx*width,ry=p.ry*height;
-      ctx.save();ctx.shadowColor="rgba(0,0,0,.38)";ctx.shadowBlur=18;ctx.shadowOffsetY=7;
-      const g=ctx.createRadialGradient(px-rx*.25,py-ry*.32,2,px,py,Math.max(rx,ry));
-      g.addColorStop(0,p.colors[0]);g.addColorStop(.62,p.colors[1]);g.addColorStop(1,p.colors[2]);
-      ctx.fillStyle=g;ctx.strokeStyle=p.stroke;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(px,py,rx,ry,-.12,0,Math.PI*2);ctx.fill();ctx.stroke();
-      ctx.shadowColor="transparent";
-      for(let i=0;i<42;i++){const angle=i*2.399+index,dist=.18+((i*37)%79)/100;const sx=px+Math.cos(angle)*rx*dist,sy=py+Math.sin(angle)*ry*dist;ctx.fillStyle=index===0?(i%2?"rgba(184,204,135,.35)":"rgba(25,43,27,.3)"):index===1?(i%2?"rgba(213,168,111,.32)":"rgba(43,30,21,.3)"):"rgba(230,220,184,.1)";ctx.beginPath();ctx.ellipse(sx,sy,1.5+(i%3),.7+(i%2),angle,0,Math.PI*2);ctx.fill();}
+      const px=p.x*width,py=p.y*height,rx=p.rx,ry=p.ry;
+      ctx.save();
+      ctx.translate(px,py);
+      // Uneven silhouette made from overlapping soft organic lobes.
+      ctx.shadowColor="rgba(0,0,0,.28)";ctx.shadowBlur=unit*.012;ctx.shadowOffsetY=unit*.006;
+      const colors=p.kind==="moss"
+        ? ["#879d62","#536f43","#344b31"]
+        : p.kind==="bark"
+        ? ["#bd9565","#87613f","#523b2a"]
+        : ["rgba(153,151,119,.10)","rgba(100,103,78,.07)","rgba(60,66,48,.025)"];
+      const fill=ctx.createRadialGradient(-rx*.28,-ry*.38,unit*.004,0,0,Math.max(rx,ry)*1.18);
+      fill.addColorStop(0,colors[0]);fill.addColorStop(.62,colors[1]);fill.addColorStop(1,colors[2]);
+      ctx.fillStyle=fill;ctx.beginPath();
+      for(let n=0;n<18;n++){
+        const a=n*Math.PI*2/18;
+        const wobble=1+.09*Math.sin(n*2.7+index)+.045*Math.cos(n*4.1);
+        const x=Math.cos(a)*rx*wobble,y=Math.sin(a)*ry*wobble;
+        if(n===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.closePath();ctx.fill();
+      ctx.shadowColor="transparent";ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+      // Fine surface detail at the same scale as the soil grain background.
+      for(let n=0;n<100;n++){
+        const a=n*2.399+index*.8,dist=.12+((n*37)%83)/100;
+        const x=Math.cos(a)*rx*dist,y=Math.sin(a)*ry*dist;
+        if(p.kind==="moss"){
+          const rr=unit*(.0015+(n%4)*.00045);
+          ctx.fillStyle=n%3===0?"rgba(204,218,151,.48)":n%3===1?"rgba(34,57,29,.42)":"rgba(129,158,87,.48)";
+          ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);ctx.fill();
+          if(n%5===0){
+            ctx.strokeStyle="rgba(183,205,128,.62)";ctx.lineWidth=Math.max(.7,unit*.0012);
+            ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+unit*.003,y-unit*.006,x+unit*.006,y-unit*.009);ctx.stroke();
+          }
+        }else if(p.kind==="bark"){
+          ctx.strokeStyle=n%3===0?"rgba(225,183,126,.40)":"rgba(57,39,26,.34)";
+          ctx.lineWidth=Math.max(.7,unit*.0014);ctx.beginPath();
+          ctx.moveTo(x-unit*.006,y);ctx.quadraticCurveTo(x,y-unit*.002,x+unit*.007,y-unit*.001);ctx.stroke();
+          if(n%9===0){ctx.fillStyle="rgba(47,34,25,.30)";ctx.beginPath();ctx.ellipse(x,y,unit*.002,unit*.001,0,0,Math.PI*2);ctx.fill();}
+        }
+      }
+      if(p.kind!=="open"){
+        ctx.strokeStyle=p.kind==="moss"?"rgba(191,211,143,.28)":"rgba(231,192,143,.25)";
+        ctx.lineWidth=Math.max(1,unit*.0018);ctx.beginPath();
+        ctx.ellipse(0,0,rx*.96,ry*.95,-.08,Math.PI*1.05,Math.PI*1.88);ctx.stroke();
+      }
       ctx.restore();
     });
     // Pebbles: rounded stones with individual highlights, shading and ground shadows.
