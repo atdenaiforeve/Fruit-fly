@@ -20,14 +20,14 @@
     running:false, elapsed:0, lastFrame:0, wallClosed:true,
     flies:[makeFly(.25,.5,"male"),makeFly(.75,.5,"female")],
     foods:[
-      {id:"fruit-m",type:"fruit",x:.19,y:.46,amount:100,label:"FRUIT",side:"male"},
-      {id:"yeast-m",type:"yeast",x:.29,y:.52,amount:100,label:"YEAST",side:"male"},
-      {id:"sugar-m",type:"sugar",x:.35,y:.72,amount:100,label:"SAP",side:"male"},
-      {id:"fruit-f",type:"fruit",x:.81,y:.46,amount:100,label:"FRUIT",side:"female"},
-      {id:"yeast-f",type:"yeast",x:.71,y:.52,amount:100,label:"YEAST",side:"female"},
-      {id:"sugar-f",type:"sugar",x:.65,y:.72,amount:100,label:"SAP",side:"female"}
+      {id:"fruit-m",type:"fruit",x:.12,y:.29,amount:100,label:"FRUIT",side:"male"},
+      {id:"yeast-m",type:"yeast",x:.39,y:.42,amount:100,label:"YEAST",side:"male"},
+      {id:"sugar-m",type:"sugar",x:.13,y:.79,amount:100,label:"SAP",side:"male"},
+      {id:"fruit-f",type:"fruit",x:.88,y:.29,amount:100,label:"FRUIT",side:"female"},
+      {id:"yeast-f",type:"yeast",x:.61,y:.42,amount:100,label:"YEAST",side:"female"},
+      {id:"sugar-f",type:"sugar",x:.87,y:.79,amount:100,label:"SAP",side:"female"}
     ],
-    waters:[{x:.25,y:.61,amount:100,side:"male"},{x:.75,y:.61,amount:100,side:"female"}],
+    waters:[{x:.39,y:.76,amount:100,side:"male"},{x:.61,y:.76,amount:100,side:"female"}],
     events:[]
   };
   // Public sensory interface for a future neural model. IDs and labels stay stable.
