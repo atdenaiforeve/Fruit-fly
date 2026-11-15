@@ -26,6 +26,8 @@
         <span><i class="legend-fly"></i> Fly</span>
         <span><i class="legend-food"></i> Food</span>
         <span><i class="legend-water"></i> Water</span>
+        <span><i class="legend-land"></i> Terrain</span>
+        <span><i class="legend-object"></i> Landmarks</span>
       </div>
 
       <div class="habitat-controls">
@@ -83,6 +85,19 @@
           <div class="resource-row"><span class="resource-icon yeast-icon">✳</span><div class="resource-info"><strong>Yeast-rich surface</strong><span>Yeast and microbes on food</span></div><strong class="resource-amount" id="yeastAmount">100%</strong></div>
           <div class="resource-row"><span class="resource-icon nectar-icon">✧</span><div class="resource-info"><strong>Sugary plant fluid</strong><span>Nectar-like sugar source</span></div><strong class="resource-amount" id="sugarAmount">100%</strong></div>
           <div class="resource-row"><span class="resource-icon water-icon">◒</span><div class="resource-info"><strong>Water / moisture</strong><span>Moisture pool</span></div><strong class="resource-amount" id="waterAmount">100%</strong></div>
+        </article>
+
+        <article class="panel world-panel">
+          <div class="panel-heading"><div><p class="eyebrow">WORLD MAP</p><h2>Places to explore</h2></div><span class="tiny-label">ENVIRONMENT FEATURES</span></div>
+          <div class="feature-list">
+            <div><i class="feature-swatch moss"></i><span><strong>Moss patch</strong><small>Soft, textured ground</small></span></div>
+            <div><i class="feature-swatch bark"></i><span><strong>Bark ridge</strong><small>Raised, rough surface</small></span></div>
+            <div><i class="feature-swatch pebbles"></i><span><strong>Pebble field</strong><small>Small solid obstacles</small></span></div>
+            <div><i class="feature-swatch leaf"></i><span><strong>Curled leaf shelter</strong><small>Covered resting area</small></span></div>
+            <div><i class="feature-swatch twig"></i><span><strong>Twig arch</strong><small>Overhead landmark</small></span></div>
+            <div><i class="feature-swatch open"></i><span><strong>Open ground</strong><small>Clear area for movement</small></span></div>
+          </div>
+          <p class="data-note">These features have stable IDs and object types so a future brain model can receive structured sensory information about them.</p>
         </article>
 
         <article class="panel log-panel">
