@@ -55,7 +55,7 @@
       return {subjectId:"fly-"+(fly.sex==="male"?"001":"002"),terrainUnderfoot:underfoot,nearbyEntities:nearby,wallClosed:state.wallClosed,needs:{hunger:fly.hunger,hydration:fly.hydration,energy:fly.energy}};
     }
   };
-  let width=0,height=0,dpr=1,raf=0;
+  let width=0,height=0,dpr=1,raf=0,zoomLevel=1;
   function drawGround(){
     const w=window.innerWidth,h=Math.max(document.documentElement.scrollHeight,window.innerHeight);
     ground.style.height=h+"px";const ratio=Math.min(window.devicePixelRatio||1,2);
@@ -262,8 +262,8 @@
   }
   function draw(){
     if(!width||!height)return;ctx.clearRect(0,0,width,height);
-    // Pull the scene back slightly so both complete compartments fit in view.
-    ctx.save();ctx.translate(width*.02,height*.02);ctx.scale(.96,.96);
+    // Zoom around the centre so users can inspect details without losing the habitat controls.
+    ctx.save();ctx.translate(width/2,height/2);ctx.scale(zoomLevel*.96,zoomLevel*.96);ctx.translate(-width/2,-height/2);
     // Slightly zoomed-out layout: two equal habitat compartments.
     drawEnvironment();
     state.foods.forEach(food=>drawResource(food,food.type));
@@ -368,6 +368,10 @@
     draw();
   }
   function frame(now){if(!state.running)return;const dt=Math.min((now-state.lastFrame)/1000,.08);state.lastFrame=now;update(dt);raf=requestAnimationFrame(frame);}
+  function setZoom(next){zoomLevel=Math.max(.7,Math.min(2.2,Math.round(next*100)/100));$("zoomLevel").textContent=Math.round(zoomLevel*100)+"%";$("zoomOut").disabled=zoomLevel<=.7;$("zoomIn").disabled=zoomLevel>=2.2;draw();}
+  $("zoomIn").addEventListener("click",()=>setZoom(zoomLevel+.15));
+  $("zoomOut").addEventListener("click",()=>setZoom(zoomLevel-.15));
+  $("zoomReset").addEventListener("click",()=>setZoom(1));
   $("wallToggle").addEventListener("click",()=>setWall(!state.wallClosed));
   $("startBtn").addEventListener("click",()=>{if(state.running)return;state.running=true;state.lastFrame=performance.now();$("startBtn").disabled=true;$("pauseBtn").disabled=false;$("runStatus").innerHTML='<span class="status-dot" style="background:#86d5b5"></span> RUNNING';log("Simulation started. Basic placeholder movement is active.");raf=requestAnimationFrame(frame);});
   $("pauseBtn").addEventListener("click",()=>{state.running=false;cancelAnimationFrame(raf);$("startBtn").disabled=false;$("pauseBtn").disabled=true;$("runStatus").innerHTML='<span class="status-dot"></span> PAUSED';log("Simulation paused.");});
