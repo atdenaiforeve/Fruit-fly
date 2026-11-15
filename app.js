@@ -14,6 +14,10 @@
     {id:"landmark-pebble-field",type:"obstacle",label:"Pebble field",x:.48,y:.25,radius:.055,description:"A cluster of small solid stones."},
     {id:"landmark-curled-leaf",type:"shelter",label:"Curled leaf shelter",x:.22,y:.63,radius:.075,description:"A curved leaf forming a sheltered space."},
     {id:"landmark-twig-arch",type:"landmark",label:"Twig arch",x:.78,y:.65,radius:.065,description:"A raised twig crossing the ground."},
+    {id:"landmark-dew-garden",type:"water-feature",label:"Dew garden",x:.22,y:.27,radius:.065,description:"A cluster of tiny dew beads catching the light."},
+    {id:"landmark-petal-fan",type:"landmark",label:"Flower petal fan",x:.78,y:.27,radius:.075,description:"Curved pink petals spread across the ground."},
+    {id:"landmark-seed-pod-tunnel",type:"shelter",label:"Seed-pod tunnel",x:.19,y:.87,radius:.07,description:"A hollow seed pod forming a small natural tunnel."},
+    {id:"landmark-root-bridge",type:"landmark",label:"Twisted root bridge",x:.81,y:.87,radius:.075,description:"A raised twisting root with space beneath it."},
     {id:"landmark-bark-chip",type:"obstacle",label:"Bark chip",x:.52,y:.78,radius:.045,description:"A small piece of loose bark."}
   ];
   const state = {
@@ -145,6 +149,26 @@
     // Twig arch.
     ctx.strokeStyle="#b18a5e";ctx.lineWidth=7;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(.73*width,.68*height);ctx.quadraticCurveTo(.78*width,.55*height,.83*width,.68*height);ctx.stroke();
     ctx.strokeStyle="#d0aa78";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(.73*width,.67*height);ctx.quadraticCurveTo(.78*width,.56*height,.83*width,.67*height);ctx.stroke();
+    // Dew garden: several clear beads sitting on a dark damp patch.
+    ctx.save();
+    ctx.fillStyle="rgba(55,91,76,.48)";ctx.beginPath();ctx.ellipse(.22*width,.27*height,.065*width,.026*height,-.12,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<7;i++){
+      const dx=(.185+(i%4)*.021)*width,dy=(.255+Math.floor(i/4)*.025+(i%2)*.006)*height;
+      const rr=3+(i%3)*1.2;ctx.fillStyle="rgba(166,222,224,.72)";ctx.beginPath();ctx.arc(dx,dy,rr,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="rgba(255,255,255,.78)";ctx.beginPath();ctx.arc(dx-rr*.3,dy-rr*.35,rr*.25,0,Math.PI*2);ctx.fill();
+    }
+    // Fallen flower petal fan.
+    ctx.translate(.78*width,.27*height);
+    for(let i=0;i<5;i++){ctx.save();ctx.rotate(i*Math.PI*2/5);ctx.fillStyle=i%2?"#bd7182":"#d995a0";ctx.strokeStyle="rgba(244,202,194,.8)";ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,-17,8,19,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}
+    ctx.fillStyle="#c6a45d";ctx.beginPath();ctx.arc(0,0,6,0,Math.PI*2);ctx.fill();ctx.restore();
+    // Hollow seed-pod tunnel on the lower left.
+    ctx.save();ctx.translate(.19*width,.87*height);ctx.fillStyle="#72563b";ctx.strokeStyle="#b58c5d";ctx.lineWidth=3;
+    ctx.beginPath();ctx.ellipse(0,0,34,15,-.12,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#241d17";ctx.beginPath();ctx.ellipse(0,-2,23,8,-.12,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="rgba(221,181,125,.65)";ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(-2,-1,19,6,-.12,0,Math.PI*2);ctx.stroke();ctx.restore();
+    // Twisted root bridge on the lower right, with a visible opening underneath.
+    ctx.save();ctx.strokeStyle="#513b28";ctx.lineWidth=12;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(.75*width,.89*height);ctx.bezierCurveTo(.77*width,.81*height,.84*width,.81*height,.87*width,.89*height);ctx.stroke();
+    ctx.strokeStyle="#a47b4e";ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(.75*width,.885*height);ctx.bezierCurveTo(.77*width,.815*height,.84*width,.815*height,.87*width,.885*height);ctx.stroke();ctx.restore();
     // Bark chip.
     ctx.fillStyle="#765337";ctx.beginPath();ctx.moveTo(.49*width,.77*height);ctx.lineTo(.54*width,.75*height);ctx.lineTo(.56*width,.79*height);ctx.lineTo(.51*width,.81*height);ctx.closePath();ctx.fill();
     ctx.restore();
@@ -155,6 +179,10 @@
     ctx.fillText("PEBBLES",.50*width,.19*height);
     ctx.fillText("LEAF SHELTER",.22*width,.73*height);
     ctx.fillText("TWIG ARCH",.78*width,.72*height);
+    ctx.fillText("DEW GARDEN",.22*width,.32*height);
+    ctx.fillText("PETAL FAN",.78*width,.32*height);
+    ctx.fillText("SEED-POD TUNNEL",.19*width,.92*height);
+    ctx.fillText("ROOT BRIDGE",.81*width,.92*height);
     ctx.fillText("OPEN GROUND",.50*width,.56*height);
     ctx.restore();
   }
