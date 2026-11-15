@@ -89,6 +89,8 @@
   }
   function draw(){
     if(!width||!height)return;ctx.clearRect(0,0,width,height);
+    // Pull the scene back slightly so both complete compartments fit in view.
+    ctx.save();ctx.translate(width*.05,height*.05);ctx.scale(.90,.90);
     // Slightly zoomed-out layout: two equal habitat compartments.
     state.foods.forEach(food=>drawResource(food,food.type));
     state.waters.forEach(w=>drawResource({...w,label:"WATER"},"water"));
@@ -103,11 +105,15 @@
       ctx.beginPath();ctx.moveTo(width/2,34);ctx.lineTo(width/2,height-34);ctx.stroke();ctx.restore();
     }
     state.flies.forEach(drawFly);
+    // Outlines make the two separate habitat boxes easy to read.
+    ctx.save();ctx.strokeStyle="rgba(235,235,240,.38)";ctx.lineWidth=1.5;
+    ctx.strokeRect(8,72,width/2-16,height-92);ctx.strokeRect(width/2+8,72,width/2-16,height-92);ctx.restore();
     ctx.save();ctx.fillStyle="#fff";ctx.font="bold 11px system-ui";ctx.shadowColor="#000";ctx.shadowBlur=6;
     ctx.fillText("MALE · COMPARTMENT A",18,58);ctx.textAlign="right";ctx.fillText("FEMALE · COMPARTMENT B",width-18,58);ctx.restore();
     if(!state.wallClosed&&state.flies.some(f=>f.detected)){
       ctx.save();ctx.fillStyle="#bce8d5";ctx.font="bold 10px system-ui";ctx.textAlign="center";ctx.fillText("NEARBY FLY DETECTED*",width/2,height-58);ctx.restore();
     }
+    ctx.restore();
   }
   function moveFly(fly,dt){
     fly.hunger=Math.min(100,fly.hunger+dt*1.15);fly.hydration=Math.max(0,fly.hydration-dt*.42);fly.energy=Math.max(0,fly.energy-dt*.12);
