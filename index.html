@@ -43,23 +43,23 @@
       <header class="info-heading">
         <p class="eyebrow">EXPERIMENT 001</p>
         <h1>Habitat information</h1>
-        <p class="muted">Two isolated subjects · Wall blocks crossing and detection until removed.</p>
-        <p class="muted">Measurements and observations from the current environment.</p>
+        <p class="muted">Two separate subjects · Measurements and observations from the habitat.</p>
       </header>
 
       <div class="info-grid">
         <article class="panel">
           <div class="panel-heading"><div><p class="eyebrow">SUBJECT</p><h2>Male fruit fly #001</h2></div><span class="alive-tag">● ALIVE</span></div>
           <div class="stats-grid">
-            <div class="stat"><span>POSITION</span><strong id="positionStat">50, 50</strong></div>
             <div class="stat"><span>ENERGY</span><strong id="energyStat">100%</strong></div>
             <div class="stat"><span>HUNGER</span><strong id="hungerStat">0%</strong></div>
             <div class="stat"><span>HYDRATION</span><strong id="waterStat">100%</strong></div>
           </div>
           <p class="data-note">Male compartment · Basic environment prototype · No brain model connected</p>
-          <div class="panel-heading" style="margin-top:18px"><div><p class="eyebrow">SUBJECT</p><h2>Female fruit fly #002</h2></div><span class="alive-tag">● ALIVE</span></div>
+        </article>
+
+        <article class="panel subject-panel">
+          <div class="panel-heading"><div><p class="eyebrow">SUBJECT</p><h2>Female fruit fly #002</h2></div><span class="alive-tag">● ALIVE</span></div>
           <div class="stats-grid">
-            <div class="stat"><span>POSITION</span><strong id="femalePositionStat">75, 50</strong></div>
             <div class="stat"><span>ENERGY</span><strong id="femaleEnergyStat">100%</strong></div>
             <div class="stat"><span>HUNGER</span><strong id="femaleHungerStat">0%</strong></div>
             <div class="stat"><span>HYDRATION</span><strong id="femaleWaterStat">100%</strong></div>
@@ -69,7 +69,7 @@
 
         <article class="panel">
           <div class="panel-heading"><div><p class="eyebrow">COLONY RECORD</p><h2>Population</h2></div><span class="tiny-label">LIFECYCLE</span></div>
-          <div class="population-row"><div><span class="big-number" id="population">1</span><span class="muted"> living adults</span></div><span class="population-icon">♧</span></div>
+          <div class="population-row"><div><span class="big-number" id="population">2</span><span class="muted"> living adults</span></div><span class="population-icon">♧</span></div>
           <div class="mini-stats">
             <div><span>Eggs laid</span><strong id="eggsLaid">0</strong></div>
             <div><span>Eggs developing</span><strong id="eggsDeveloping">0</strong></div>
