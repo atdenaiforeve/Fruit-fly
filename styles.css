@@ -105,3 +105,58 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .feature-swatch{box-shadow:inset 0 1px 2px rgba(255,255,255,.2),0 3px 8px rgba(0,0,0,.28)}
 .button{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 3px 9px rgba(0,0,0,.22)}
 @media(max-width:650px){.habitat-screen{height:190svh;min-height:760px}}
+
+
+/* Square habitat viewport with independent zoom controls. */
+.habitat-screen{
+  width:min(100%,90svh);
+  height:auto;
+  aspect-ratio:1 / 1;
+  min-height:0;
+  margin-inline:auto;
+}
+.zoom-controls{
+  position:absolute;
+  z-index:3;
+  right:16px;
+  bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px;
+  border:1px solid rgba(226,224,205,.24);
+  border-radius:12px;
+  background:rgba(20,24,19,.78);
+  backdrop-filter:blur(9px);
+  box-shadow:0 5px 18px rgba(0,0,0,.28);
+}
+.zoom-controls #zoomLevel{
+  min-width:43px;
+  text-align:center;
+  color:#f0eee5;
+  font-size:11px;
+  font-weight:750;
+  font-variant-numeric:tabular-nums;
+}
+.zoom-controls .zoom-button{
+  width:34px;
+  height:34px;
+  padding:0;
+  font-size:20px;
+  line-height:1;
+}
+.zoom-controls .zoom-reset{
+  padding:7px 9px;
+  font-size:10px;
+}
+@media(max-width:650px){
+  .habitat-screen{width:100%;height:auto;aspect-ratio:1 / 1;min-height:0}
+  .habitat-controls{right:12px;bottom:62px;max-width:calc(100% - 24px)}
+  .zoom-controls{right:12px;bottom:10px}
+  .world-legend{top:116px}
+}
+@media(max-width:390px){
+  .zoom-controls{gap:4px;padding:4px}
+  .zoom-controls .zoom-button{width:31px;height:31px}
+  .zoom-controls .zoom-reset{padding:6px 7px}
+}
