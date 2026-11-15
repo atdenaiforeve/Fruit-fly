@@ -108,8 +108,17 @@
     ctx.fillText(resource.label||"WATER",x,y+29);ctx.restore();
   }
   function drawFly(fly){
-    const x=fly.x*width,y=fly.y*height,isFemale=fly.sex==="female";
+    const x=fly.x*width,y=fly.y*height,isFemale=fly.sex==="female",isFlying=!!fly.isFlying;
     ctx.save();ctx.translate(x,y);ctx.rotate(fly.angle);
+    // Fast-flight wing blur: a faint cool-blue motion trail while moving;
+    // wings return to their normal clear appearance when the fly settles.
+    if(isFlying){
+      ctx.fillStyle="rgba(126,190,218,.20)";ctx.strokeStyle="rgba(164,218,239,.42)";ctx.lineWidth=1;
+      for(const side of [-1,1]){
+        ctx.beginPath();ctx.ellipse(-5,side*10,9,15,side*-.55,0,Math.PI*2);ctx.fill();ctx.stroke();
+        ctx.beginPath();ctx.ellipse(-5,side*5,8,13,side*-.55,0,Math.PI*2);ctx.fill();
+      }
+    }
     ctx.strokeStyle=isFemale?"#f1dfbd":"#d4e8db";ctx.lineWidth=1.4;ctx.fillStyle=isFemale?"rgba(245,221,183,.78)":"rgba(185,222,225,.72)";
     ctx.beginPath();ctx.ellipse(-5,-7,7,12,-.55,0,Math.PI*2);ctx.fill();ctx.stroke();
     ctx.beginPath();ctx.ellipse(-5,7,7,12,.55,0,Math.PI*2);ctx.fill();ctx.stroke();
@@ -199,8 +208,9 @@
     fly.exploreTimer-=dt;
     if(!target)target=fly.exploreTarget;
     const dx=target.x-fly.x,dy=target.y-fly.y,distance=Math.hypot(dx,dy);
-    if(distance>.025){
-      fly.angle=Math.atan2(dy,dx);const step=Math.min(distance,dt*.045);
+    fly.isFlying=distance>.025;
+    if(fly.isFlying){
+      fly.angle=Math.atan2(dy,dx);const step=Math.min(distance,dt*.04725);
       fly.x+=dx/distance*step;fly.y+=dy/distance*step;
     }else if(state.waters.includes(target)){
       fly.hydration=Math.min(100,fly.hydration+dt*6);target.amount=Math.max(0,target.amount-dt*.2);
