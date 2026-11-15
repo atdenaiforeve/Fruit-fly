@@ -107,9 +107,9 @@
     state.flies.forEach(drawFly);
     // Outlines make the two separate habitat boxes easy to read.
     ctx.save();ctx.strokeStyle="rgba(235,235,240,.38)";ctx.lineWidth=1.5;
-    ctx.strokeRect(8,72,width/2-16,height-92);ctx.strokeRect(width/2+8,72,width/2-16,height-92);ctx.restore();
+    ctx.strokeRect(8,104,width/2-16,height-124);ctx.strokeRect(width/2+8,104,width/2-16,height-124);ctx.restore();
     ctx.save();ctx.fillStyle="#fff";ctx.font="bold 11px system-ui";ctx.shadowColor="#000";ctx.shadowBlur=6;
-    ctx.fillText("MALE · COMPARTMENT A",18,58);ctx.textAlign="right";ctx.fillText("FEMALE · COMPARTMENT B",width-18,58);ctx.restore();
+    ctx.fillText("MALE · COMPARTMENT A",18,92);ctx.textAlign="right";ctx.fillText("FEMALE · COMPARTMENT B",width-18,92);ctx.restore();
     if(!state.wallClosed&&state.flies.some(f=>f.detected)){
       ctx.save();ctx.fillStyle="#bce8d5";ctx.font="bold 10px system-ui";ctx.textAlign="center";ctx.fillText("NEARBY FLY DETECTED*",width/2,height-58);ctx.restore();
     }
@@ -150,9 +150,7 @@
   }
   function renderStats(){
     const [m,f]=state.flies;
-    $("positionStat").textContent=Math.round(m.x*100)+", "+Math.round(m.y*100);
     $("energyStat").textContent=Math.round(m.energy)+"%";$("hungerStat").textContent=Math.round(m.hunger)+"%";$("waterStat").textContent=Math.round(m.hydration)+"%";
-    $("femalePositionStat").textContent=Math.round(f.x*100)+", "+Math.round(f.y*100);
     $("femaleEnergyStat").textContent=Math.round(f.energy)+"%";$("femaleHungerStat").textContent=Math.round(f.hunger)+"%";$("femaleWaterStat").textContent=Math.round(f.hydration)+"%";
     ["fruit","yeast","sugar"].forEach(type=>{const item=state.foods.find(x=>x.id===type+"-m");$(type+"Amount").textContent=Math.round(item.amount)+"%";});
     $("waterAmount").textContent=Math.round(state.waters[0].amount)+"%";
