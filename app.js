@@ -1,4 +1,6 @@
 (() => {
+  const ground = document.getElementById("habitatGround");
+  const groundCtx = ground.getContext("2d");
   const canvas = document.getElementById("world");
   const ctx = canvas.getContext("2d");
   const $ = (id) => document.getElementById(id);
@@ -11,7 +13,49 @@
   };
   let width = 0, height = 0, dpr = 1, raf = 0;
 
+  function drawGround() {
+    const w = window.innerWidth, h = window.innerHeight;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    ground.width = Math.round(w * ratio); ground.height = Math.round(h * ratio);
+    groundCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    groundCtx.clearRect(0, 0, w, h);
+    const tile = Math.max(92, Math.min(150, w / 8));
+    const angle = -0.105, cx = w / 2, cy = h / 2;
+    const cols = Math.ceil((w + h) / tile) + 4, rows = Math.ceil((w + h) / tile) + 4;
+    const points = [];
+    for (let r = -2; r < rows; r++) {
+      points[r] = [];
+      for (let c = -2; c < cols; c++) {
+        const gx = (c - cols / 2) * tile, gy = (r - rows / 2) * tile;
+        const seed = Math.sin((c + 17) * 127.1 + (r + 29) * 311.7) * 43758.5453;
+        const seed2 = Math.sin((c + 43) * 269.5 + (r + 11) * 183.3) * 24634.6345;
+        const jx = (seed - Math.floor(seed) - .5) * 10;
+        const jy = (seed2 - Math.floor(seed2) - .5) * 10;
+        points[r][c] = {
+          x: cx + gx * Math.cos(angle) - gy * Math.sin(angle) + jx,
+          y: cy + gx * Math.sin(angle) + gy * Math.cos(angle) + jy + gy * gy * .000025
+        };
+      }
+    }
+    for (let r = 0; r < rows - 1; r++) for (let c = 0; c < cols - 1; c++) {
+      const a = points[r][c], b = points[r][c+1], d = points[r+1][c], e = points[r+1][c+1];
+      const shade = ((r + c) % 2 === 0) ? 1 : 0;
+      const base = shade ? 48 : 25;
+      const variation = Math.round((Math.sin(c * 8.2 + r * 3.7) + 1) * 5);
+      groundCtx.beginPath(); groundCtx.moveTo(a.x,a.y); groundCtx.lineTo(b.x,b.y); groundCtx.lineTo(e.x,e.y); groundCtx.lineTo(d.x,d.y); groundCtx.closePath();
+      groundCtx.fillStyle = `rgb(${base+variation},${base+variation},${base+variation+2})`;
+      groundCtx.fill();
+      groundCtx.strokeStyle = "rgba(0,0,0,.28)"; groundCtx.lineWidth = 2; groundCtx.stroke();
+      groundCtx.strokeStyle = "rgba(220,220,225,.025)"; groundCtx.lineWidth = 1;
+      groundCtx.beginPath(); groundCtx.moveTo(a.x+2,a.y+2); groundCtx.lineTo(b.x-2,b.y-2); groundCtx.stroke();
+    }
+    const shade = groundCtx.createRadialGradient(cx,cy,Math.min(w,h)*.12,cx,cy,Math.max(w,h)*.78);
+    shade.addColorStop(0,"rgba(0,0,0,0)"); shade.addColorStop(1,"rgba(0,0,0,.32)");
+    groundCtx.fillStyle = shade; groundCtx.fillRect(0,0,w,h);
+  }
+
   function resize() {
+    drawGround();
     const rect = canvas.getBoundingClientRect();
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     width = rect.width; height = rect.height;
@@ -69,11 +113,6 @@
   function draw() {
     if (!width || !height) return;
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "#1b302b"; ctx.fillRect(0, 0, width, height);
-    ctx.strokeStyle = "rgba(169,205,180,.08)"; ctx.lineWidth = 1;
-    for (let x = 0; x < width; x += 28) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
-    for (let y = 0; y < height; y += 28) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
-    for (let i = 0; i < 15; i++) drawPlant((i * 83 + 29) % width, (i * 47 + 17) % height, .55 + (i % 3) * .18);
     drawResource(state.food, "food"); drawResource(state.water, "water"); drawFly();
   }
   function update(dt) {
