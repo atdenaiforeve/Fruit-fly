@@ -166,15 +166,32 @@
     drawEnvironment();
     state.foods.forEach(food=>drawResource(food,food.type));
     state.waters.forEach(w=>drawResource({...w,label:"WATER"},"water"));
-    // Divider is a physical boundary while closed; it also blocks all cross-compartment sensing.
+    // Natural-looking bark partition. The visual changes, but the same boundary rules apply.
     if(state.wallClosed){
-      ctx.save();ctx.strokeStyle="rgba(235,235,240,.88)";ctx.lineWidth=5;ctx.setLineDash([10,7]);
-      ctx.beginPath();ctx.moveTo(width/2,34);ctx.lineTo(width/2,height-34);ctx.stroke();
-      ctx.setLineDash([]);ctx.fillStyle="#eeeeef";ctx.font="bold 10px system-ui";ctx.textAlign="center";
-      ctx.fillText("SEALED DIVIDER",width/2,height*.5);ctx.restore();
+      ctx.save();
+      const x=width/2, top=34, bottom=height-34;
+      ctx.shadowColor="rgba(20,13,7,.48)";ctx.shadowBlur=13;ctx.shadowOffsetX=3;
+      const bark=ctx.createLinearGradient(x-10,0,x+10,0);
+      bark.addColorStop(0,"#4b3321");bark.addColorStop(.22,"#9b7046");
+      bark.addColorStop(.48,"#c49a65");bark.addColorStop(.72,"#805637");bark.addColorStop(1,"#3c291c");
+      ctx.fillStyle=bark;ctx.beginPath();ctx.roundRect(x-8,top,16,bottom-top,8);ctx.fill();
+      ctx.shadowColor="transparent";ctx.shadowBlur=0;ctx.shadowOffsetX=0;
+      ctx.strokeStyle="rgba(235,197,143,.58)";ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(x-3,top+10);ctx.bezierCurveTo(x-6,height*.3,x+2,height*.56,x-2,bottom-12);ctx.stroke();
+      ctx.strokeStyle="rgba(48,29,17,.48)";ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x+3,top+18);ctx.bezierCurveTo(x+6,height*.35,x-2,height*.7,x+4,bottom-18);ctx.stroke();
+      for(let y=top+34;y<bottom-20;y+=Math.max(90,height*.11)){
+        ctx.fillStyle="rgba(43,27,17,.48)";ctx.beginPath();ctx.ellipse(x+((Math.floor(y/34)%2)?2:-2),y,2.2,5,0,0,Math.PI*2);ctx.fill();
+      }
+      ctx.fillStyle="#d8b887";ctx.beginPath();ctx.ellipse(x,top+3,10,5,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle="rgba(62,40,24,.8)";ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(x,top+3,10,5,0,0,Math.PI*2);ctx.stroke();
+      ctx.restore();
     }else{
-      ctx.save();ctx.strokeStyle="rgba(137,208,174,.55)";ctx.lineWidth=2;ctx.setLineDash([4,8]);
-      ctx.beginPath();ctx.moveTo(width/2,34);ctx.lineTo(width/2,height-34);ctx.stroke();ctx.restore();
+      ctx.save();ctx.strokeStyle="rgba(151,207,164,.72)";ctx.lineWidth=2.5;ctx.setLineDash([3,10]);
+      ctx.beginPath();ctx.moveTo(width/2,34);ctx.lineTo(width/2,height-34);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle="rgba(151,207,164,.9)";
+      ctx.beginPath();ctx.arc(width/2,42,4,0,Math.PI*2);ctx.arc(width/2,height-42,4,0,Math.PI*2);ctx.fill();
+      ctx.restore();
     }
     state.flies.forEach(drawFly);
     // Outlines make the two separate habitat boxes easy to read.
